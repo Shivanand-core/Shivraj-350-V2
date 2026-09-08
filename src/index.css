@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@theme {
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-cinzel: "Cinzel", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --color-academic-navy: #0B192C;
+  --color-academic-navy-light: #1E3E62;
+  --color-academic-maroon: #781D26;
+  --color-academic-maroon-dark: #551219;
+  --color-academic-gold: #C5A059;
+  --color-academic-gold-light: #E0C58A;
+}
+
+.font-serif {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', Georgia, serif;
+}
+
+.font-sans {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Academic Guilloche / Pattern subtle overlay */
+.academic-hero-pattern {
+  background-color: #071324;
+  background-image: radial-gradient(rgba(197, 160, 89, 0.12) 1px, transparent 1px),
+    radial-gradient(rgba(120, 29, 38, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+.paper-texture {
+  background-color: #FAF9F6;
+  background-image: radial-gradient(#e5e7eb 0.75px, transparent 0.75px);
+  background-size: 16px 16px;
+}
+
+/* Hide scrollbar for clean touch-friendly horizontal swipe chips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

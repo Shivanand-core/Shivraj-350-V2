@@ -1,0 +1,8 @@
+{
+  "name": "Remix Shivraj 350 Journal",
+  "description": "Shivraj 350: International Peer Reviewed Multidisciplinary Journal, published by Shivaji College, University of Delhi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
