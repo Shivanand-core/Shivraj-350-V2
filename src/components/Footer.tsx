@@ -217,6 +217,14 @@ export default function Footer({ onSelectTab, onOpenEditorialLogin }: FooterProp
         </div>
       </div>
 
+      {/* Discreet Developer Credit Line */}
+      <div className="relative z-10 border-t border-slate-800/40 bg-[#030a14] py-2.5 px-4 text-center">
+        <p className="text-[11px] sm:text-xs text-slate-500 font-sans tracking-wide leading-relaxed">
+          Concept, Design &amp; Development by{' '}
+          <span className="text-[#C5A059]/80 font-medium">Shivanand Pandey</span>
+        </p>
+      </div>
+
     </footer>
   );
 }
