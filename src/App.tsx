@@ -177,7 +177,6 @@ export default function App() {
   const handleOpenEditorialLogin = () => {
     setDedicatedArticle(null);
     setCurrentRoute('editorial-login');
-    window.history.pushState(null, '', '/editorial-login');
     window.location.hash = '#/editorial-login';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -192,7 +191,6 @@ export default function App() {
       // Ignore localStorage exceptions in sandboxes
     }
     setCurrentRoute('editorial-dashboard');
-    window.history.pushState(null, '', '/editorial-dashboard');
     window.location.hash = '#/editorial-dashboard';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -205,7 +203,6 @@ export default function App() {
       // Ignore
     }
     setCurrentRoute('editorial-login');
-    window.history.pushState(null, '', '/editorial-login');
     window.location.hash = '#/editorial-login';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -214,9 +211,8 @@ export default function App() {
     setCurrentRoute('public');
     setDedicatedArticle(null);
     setActiveTab('home');
-    window.history.pushState(null, '', '/');
     if (window.location.hash.startsWith('#/editorial') || window.location.hash.startsWith('#/articles')) {
-      window.location.hash = '';
+      window.history.pushState(null, '', window.location.pathname);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
