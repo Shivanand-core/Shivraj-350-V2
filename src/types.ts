@@ -6,22 +6,30 @@ export interface ArticleSection {
 export interface JournalArticle {
   id: string;
   slug: string;
-  articleNumber?: string;
+  articleNumber: string;
   title: string;
   authors: string[];
   affiliation: string;
+  affiliations?: string[];
+  department?: string;
   category: 'Sciences' | 'Social Sciences' | 'Humanities' | 'Professional Studies';
-  discipline?: string;
+  discipline: string;
+  articleType: 'Research Article' | 'Review Article' | 'Short Communication' | 'Case Study' | string;
   abstract: string;
   keywords: string[];
-  doi: string;
+  volume: string;
+  issue: string;
+  publicationDate: string;
+  publishedDate: string;
+  publicationYear: number;
   pages: string;
   pageRange?: string;
-  pdfUrl?: string;
+  doi: string;
+  pdfUrl: string;
+  content?: string;
   fullText?: string;
   sections?: ArticleSection[];
   references?: string[];
-  publishedDate: string;
 }
 
 export interface EditorialMember {

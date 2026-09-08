@@ -8,9 +8,10 @@ import { NavTab } from './Header';
 
 interface FooterProps {
   onSelectTab?: (tab: NavTab) => void;
+  onOpenEditorialLogin?: () => void;
 }
 
-export default function Footer({ onSelectTab }: FooterProps) {
+export default function Footer({ onSelectTab, onOpenEditorialLogin }: FooterProps) {
   const [copiedEmail, setCopiedEmail] = useState(false);
 
   const handleCopyEmail = () => {
@@ -22,6 +23,14 @@ export default function Footer({ onSelectTab }: FooterProps) {
   const handleNav = (tab: NavTab) => {
     if (onSelectTab) {
       onSelectTab(tab);
+    }
+  };
+
+  const handleEditorialLoginClick = () => {
+    if (onOpenEditorialLogin) {
+      onOpenEditorialLogin();
+    } else {
+      window.location.hash = '#/editorial-login';
     }
   };
 
@@ -100,15 +109,35 @@ export default function Footer({ onSelectTab }: FooterProps) {
             </div>
           </div>
 
-          {/* Column 3 (Right): "Rooted in Values / Driven by Knowledge" */}
-          <div className="md:col-span-3 text-left md:text-right space-y-1 border-t md:border-t-0 border-slate-800/80 pt-4 md:pt-0">
-            <p className="font-serif italic text-base sm:text-xl text-slate-200">
-              Rooted in Values
-            </p>
-            <p className="font-serif italic text-base sm:text-xl text-slate-200">
-              Driven by Knowledge
-            </p>
-            <div className="w-16 sm:w-20 h-0.5 bg-[#C5A059] ml-0 md:ml-auto mt-2" />
+          {/* Column 3 (Right): "Rooted in Values / Driven by Knowledge" & Subtle Editorial Access */}
+          <div className="md:col-span-3 text-left md:text-right space-y-1 border-t md:border-t-0 border-slate-800/80 pt-4 md:pt-0 flex flex-col justify-between">
+            <div>
+              <p className="font-serif italic text-base sm:text-xl text-slate-200">
+                Rooted in Values
+              </p>
+              <p className="font-serif italic text-base sm:text-xl text-slate-200">
+                Driven by Knowledge
+              </p>
+              <div className="w-16 sm:w-20 h-0.5 bg-[#C5A059] ml-0 md:ml-auto mt-2" />
+            </div>
+
+            {/* Discreet Editorial Access */}
+            <div className="pt-4 mt-3 border-t border-slate-800/60 md:text-right">
+              <div className="text-[10px] font-mono tracking-widest uppercase text-slate-500 font-semibold mb-1">
+                FOR EDITORS
+              </div>
+              <button
+                type="button"
+                onClick={handleEditorialLoginClick}
+                className="text-xs text-slate-400 hover:text-amber-300 transition-colors inline-flex items-center gap-1.5 cursor-pointer group py-0.5"
+                title="Staff Editorial Portal Login"
+              >
+                <span className="text-xs opacity-75 group-hover:opacity-100">🔐</span>
+                <span className="underline decoration-slate-700 group-hover:decoration-amber-400 underline-offset-2">
+                  Editorial Login
+                </span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -121,51 +150,69 @@ export default function Footer({ onSelectTab }: FooterProps) {
 
       {/* Subfooter Row with Thin Divider */}
       <div className="relative z-10 border-t border-slate-800/80 bg-[#050e1a] py-4 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 font-sans text-center sm:text-left">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-400 font-sans text-center md:text-left">
           <div>
             &copy; 2026 Shivraj 350. All rights reserved.
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-1.5 text-slate-300">
-            <button
-              type="button"
-              onClick={() => handleNav('home')}
-              className="hover:text-amber-300 transition-colors cursor-pointer py-1"
-            >
-              Home
-            </button>
-            <span className="text-slate-700 hidden sm:inline">|</span>
-            <button
-              type="button"
-              onClick={() => handleNav('about')}
-              className="hover:text-amber-300 transition-colors cursor-pointer py-1"
-            >
-              About
-            </button>
-            <span className="text-slate-700 hidden sm:inline">|</span>
-            <button
-              type="button"
-              onClick={() => handleNav('current-issue')}
-              className="hover:text-amber-300 transition-colors cursor-pointer py-1"
-            >
-              Current Issue
-            </button>
-            <span className="text-slate-700 hidden sm:inline">|</span>
-            <button
-              type="button"
-              onClick={() => handleNav('repository')}
-              className="hover:text-amber-300 transition-colors cursor-pointer py-1"
-            >
-              Repository
-            </button>
-            <span className="text-slate-700 hidden sm:inline">|</span>
-            <button
-              type="button"
-              onClick={() => handleNav('contact')}
-              className="hover:text-amber-300 transition-colors cursor-pointer py-1"
-            >
-              Contact
-            </button>
+          <div className="flex flex-col sm:flex-row items-center gap-x-4 gap-y-2">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-5 gap-y-1.5 text-slate-300">
+              <button
+                type="button"
+                onClick={() => handleNav('home')}
+                className="hover:text-amber-300 transition-colors cursor-pointer py-1"
+              >
+                Home
+              </button>
+              <span className="text-slate-700 hidden sm:inline">|</span>
+              <button
+                type="button"
+                onClick={() => handleNav('about')}
+                className="hover:text-amber-300 transition-colors cursor-pointer py-1"
+              >
+                About
+              </button>
+              <span className="text-slate-700 hidden sm:inline">|</span>
+              <button
+                type="button"
+                onClick={() => handleNav('current-issue')}
+                className="hover:text-amber-300 transition-colors cursor-pointer py-1"
+              >
+                Current Issue
+              </button>
+              <span className="text-slate-700 hidden sm:inline">|</span>
+              <button
+                type="button"
+                onClick={() => handleNav('repository')}
+                className="hover:text-amber-300 transition-colors cursor-pointer py-1"
+              >
+                Repository
+              </button>
+              <span className="text-slate-700 hidden sm:inline">|</span>
+              <button
+                type="button"
+                onClick={() => handleNav('contact')}
+                className="hover:text-amber-300 transition-colors cursor-pointer py-1"
+              >
+                Contact
+              </button>
+            </div>
+
+            {/* Subtle separator and Editorial Login near contact links */}
+            <div className="flex items-center gap-1.5 text-[11px] text-slate-500 pl-0 sm:pl-3 sm:border-l border-slate-800">
+              <span className="text-[10px] font-mono tracking-wider uppercase text-slate-500 font-semibold">
+                FOR EDITORS:
+              </span>
+              <button
+                type="button"
+                onClick={handleEditorialLoginClick}
+                className="text-slate-400 hover:text-amber-300 transition-colors cursor-pointer inline-flex items-center gap-1 py-0.5"
+                title="Staff Editorial Portal"
+              >
+                <span>🔐</span>
+                <span className="underline decoration-slate-700 hover:decoration-amber-400 underline-offset-2">Editorial Login</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

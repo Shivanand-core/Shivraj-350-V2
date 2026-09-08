@@ -58,9 +58,70 @@ export default function DedicatedArticlePage({
     setDownloadingPdf(true);
     setTimeout(() => {
       setDownloadingPdf(false);
-      // Trigger browser print/save PDF formatted for manuscripts
-      window.print();
-    }, 400);
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8" />
+              <title>${article.title} - Official Manuscript PDF</title>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Georgia, serif; max-width: 800px; margin: 40px auto; line-height: 1.6; color: #111; padding: 20px; }
+                .header { border-bottom: 2px solid #781D26; padding-bottom: 12px; margin-bottom: 20px; }
+                .journal-title { font-size: 14px; font-weight: bold; color: #781D26; text-transform: uppercase; letter-spacing: 1px; }
+                .meta { color: #555; font-size: 12px; margin-top: 4px; }
+                h1 { font-size: 22px; color: #0B192C; margin-top: 15px; margin-bottom: 10px; line-height: 1.3; }
+                .authors { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+                .affiliation { color: #666; font-size: 12px; margin-bottom: 20px; font-style: italic; }
+                .abstract-box { background: #fbf9f6; padding: 16px; border-left: 4px solid #781D26; margin-bottom: 24px; font-size: 13.5px; border-radius: 4px; }
+                .abstract-box strong { color: #781D26; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+                .section { margin-bottom: 20px; }
+                .section h2 { font-size: 15px; color: #0B192C; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-top: 20px; }
+                .section p { font-size: 13.5px; text-align: justify; }
+                .references { margin-top: 30px; border-top: 1px solid #ccc; padding-top: 15px; font-size: 12px; }
+                @media print { body { margin: 0; padding: 15mm; } }
+              </style>
+            </head>
+            <body>
+              <div class="header">
+                <div class="journal-title">Shivraj 350: International Peer Reviewed Multidisciplinary Journal</div>
+                <div class="meta">
+                  Inaugural Issue • Volume 1, Issue 1 (Jan - June 2026) • ISSN: 2583-XXXX • Pages: ${article.pages}<br/>
+                  Published by Shivaji College, University of Delhi | DOI: ${article.doi ? `https://doi.org/${article.doi}` : 'Not assigned'}
+                </div>
+              </div>
+              <h1>${article.title}</h1>
+              <div class="authors">${article.authors.join(', ')}</div>
+              <div class="affiliation">${article.department ? `${article.department}, ` : ''}${article.affiliation}</div>
+              <div class="abstract-box">
+                <div><strong>Abstract</strong></div>
+                <p style="margin-top: 6px;">${article.abstract}</p>
+                <div style="margin-top: 10px; font-size: 12px;"><strong>Keywords:</strong> ${article.keywords.join(', ')}</div>
+              </div>
+              ${article.sections ? article.sections.map(s => `
+                <div class="section">
+                  <h2>${s.heading}</h2>
+                  <p>${s.content}</p>
+                </div>
+              `).join('') : `<p>${article.fullText || ''}</p>`}
+              ${article.references && article.references.length > 0 ? `
+                <div class="references">
+                  <h2 style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">References</h2>
+                  <ol style="padding-left: 20px;">${article.references.map(r => `<li style="margin-bottom: 6px;">${r}</li>`).join('')}</ol>
+                </div>
+              ` : ''}
+              <script>
+                window.onload = function() { setTimeout(function() { window.print(); }, 250); };
+              </script>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+      } else {
+        window.print();
+      }
+    }, 300);
   };
 
   // Find index and adjacent articles for Next / Previous navigation
@@ -176,11 +237,16 @@ export default function DedicatedArticlePage({
           <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-100 pb-4 sm:pb-5">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <span className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider border ${theme.bg} ${theme.text} ${theme.border}`}>
-                {article.category}
+                {article.discipline || article.category}
               </span>
               <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-slate-100 text-slate-700 text-[11px] sm:text-xs font-semibold border border-slate-200">
                 {article.articleNumber || `Paper #${currentIndex + 1}`}
               </span>
+              {article.articleType && (
+                <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-slate-50 text-slate-700 text-[11px] sm:text-xs font-semibold border border-slate-200">
+                  {article.articleType}
+                </span>
+              )}
               <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-amber-50 text-amber-900 text-[11px] sm:text-xs font-semibold border border-amber-200/80">
                 Peer-Reviewed
               </span>
@@ -217,7 +283,7 @@ export default function DedicatedArticlePage({
               <Building2 className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
               <div>
                 <span className="font-medium text-slate-700">Affiliation: </span>
-                {article.affiliation}
+                {article.department ? `${article.department}, ` : ''}{article.affiliation}
               </div>
             </div>
 

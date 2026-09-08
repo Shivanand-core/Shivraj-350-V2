@@ -10,15 +10,36 @@ import AboutSection from './components/AboutSection';
 import CurrentIssueSection from './components/CurrentIssueSection';
 import ResearchRepositorySection from './components/ResearchRepositorySection';
 import ContactSection from './components/ContactSection';
+import SubmissionSection from './components/SubmissionSection';
 import Footer from './components/Footer';
 import IssueReaderModal from './components/IssueReaderModal';
 import CitationModal from './components/CitationModal';
 import SubmitManuscriptModal from './components/SubmitManuscriptModal';
 import DedicatedArticlePage from './components/DedicatedArticlePage';
+import EditorialLoginPage from './components/EditorialLoginPage';
+import EditorialDashboard from './components/EditorialDashboard';
 import { JournalArticle } from './types';
 import { INAUGURAL_ARTICLES, getArticleBySlug } from './data/journalData';
 
+export type AppRoute = 'public' | 'editorial-login' | 'editorial-dashboard';
+
 export default function App() {
+  const [currentRoute, setCurrentRoute] = useState<AppRoute>('public');
+  const [editorEmail, setEditorEmail] = useState<string>(() => {
+    try {
+      return localStorage.getItem('shivraj350_editor_email') || 'editor@shivaji.du.ac.in';
+    } catch {
+      return 'editor@shivaji.du.ac.in';
+    }
+  });
+  const [isEditorAuthenticated, setIsEditorAuthenticated] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('shivraj350_editor_auth') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
   const [activeTab, setActiveTab] = useState<NavTab>('home');
   const [dedicatedArticle, setDedicatedArticle] = useState<JournalArticle | null>(null);
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>('All');
@@ -59,6 +80,23 @@ export default function App() {
       const path = window.location.pathname;
       const hash = window.location.hash;
 
+      // Check for Editorial Dashboard
+      if (path.includes('/editorial-dashboard') || hash.startsWith('#/editorial-dashboard')) {
+        setCurrentRoute('editorial-dashboard');
+        setDedicatedArticle(null);
+        setReaderModalOpen(false);
+        return;
+      }
+
+      // Check for Editorial Login
+      if (path.includes('/editorial-login') || hash.startsWith('#/editorial-login')) {
+        setCurrentRoute('editorial-login');
+        setDedicatedArticle(null);
+        setReaderModalOpen(false);
+        return;
+      }
+
+      // Check for Dedicated Article
       let slug: string | null = null;
       if (hash.startsWith('#/articles/')) {
         slug = hash.replace('#/articles/', '').split('/')[0].split('?')[0];
@@ -71,15 +109,15 @@ export default function App() {
         const found = getArticleBySlug(slug);
         if (found) {
           setDedicatedArticle(found);
+          setCurrentRoute('public');
           setReaderModalOpen(false);
           return;
         }
       }
 
-      // If no article in path/hash, or navigating back home
-      if (!path.includes('/articles/') && !hash.startsWith('#/articles/')) {
-        setDedicatedArticle(null);
-      }
+      // Public Home Route
+      setCurrentRoute('public');
+      setDedicatedArticle(null);
     };
 
     parseRouteFromLocation();
@@ -95,7 +133,7 @@ export default function App() {
   // Handle hash scrolling on direct load
   useEffect(() => {
     const hash = window.location.hash;
-    if (hash && !hash.startsWith('#/articles/')) {
+    if (hash && !hash.startsWith('#/articles/') && !hash.startsWith('#/editorial')) {
       const targetId = hash.replace('#', '');
       const timer = setTimeout(() => {
         scrollToSection(targetId);
@@ -106,7 +144,7 @@ export default function App() {
 
   // Track scroll position to update active navbar link gracefully
   useEffect(() => {
-    if (dedicatedArticle) return;
+    if (dedicatedArticle || currentRoute !== 'public') return;
 
     const handleScroll = () => {
       if (window.scrollY < 200) {
@@ -114,7 +152,7 @@ export default function App() {
         return;
       }
 
-      const sectionIds: NavTab[] = ['contact', 'repository', 'current-issue', 'about'];
+      const sectionIds: NavTab[] = ['contact', 'submissions', 'repository', 'current-issue', 'about'];
       const header = document.querySelector('header');
       const headerHeight = header ? header.getBoundingClientRect().height : 95;
       const scrollPos = window.scrollY + headerHeight + 100;
@@ -133,7 +171,55 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [dedicatedArticle]);
+  }, [dedicatedArticle, currentRoute]);
+
+  // Editorial Navigation Handlers
+  const handleOpenEditorialLogin = () => {
+    setDedicatedArticle(null);
+    setCurrentRoute('editorial-login');
+    window.history.pushState(null, '', '/editorial-login');
+    window.location.hash = '#/editorial-login';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLoginSuccess = (email: string) => {
+    setEditorEmail(email);
+    setIsEditorAuthenticated(true);
+    try {
+      localStorage.setItem('shivraj350_editor_auth', 'true');
+      localStorage.setItem('shivraj350_editor_email', email);
+    } catch {
+      // Ignore localStorage exceptions in sandboxes
+    }
+    setCurrentRoute('editorial-dashboard');
+    window.history.pushState(null, '', '/editorial-dashboard');
+    window.location.hash = '#/editorial-dashboard';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSignOut = () => {
+    setIsEditorAuthenticated(false);
+    try {
+      localStorage.removeItem('shivraj350_editor_auth');
+    } catch {
+      // Ignore
+    }
+    setCurrentRoute('editorial-login');
+    window.history.pushState(null, '', '/editorial-login');
+    window.location.hash = '#/editorial-login';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNavigateHome = () => {
+    setCurrentRoute('public');
+    setDedicatedArticle(null);
+    setActiveTab('home');
+    window.history.pushState(null, '', '/');
+    if (window.location.hash.startsWith('#/editorial') || window.location.hash.startsWith('#/articles')) {
+      window.location.hash = '';
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Handlers
   const handleOpenInauguralIssue = () => {
@@ -151,12 +237,14 @@ export default function App() {
   const handleOpenDedicatedArticle = (article: JournalArticle) => {
     setDedicatedArticle(article);
     setReaderModalOpen(false);
+    setCurrentRoute('public');
     window.location.hash = `#/articles/${article.slug}`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackToRepository = () => {
     setDedicatedArticle(null);
+    setCurrentRoute('public');
     setActiveTab('repository');
     if (window.location.hash.startsWith('#/articles')) {
       window.history.pushState(null, '', window.location.pathname + window.location.search);
@@ -169,6 +257,7 @@ export default function App() {
   const handleSelectTab = (tab: NavTab) => {
     const wasOnDedicatedArticle = !!dedicatedArticle;
     setDedicatedArticle(null);
+    setCurrentRoute('public');
     setActiveTab(tab);
     if (window.location.hash.startsWith('#/articles')) {
       window.history.pushState(null, '', window.location.pathname + window.location.search);
@@ -193,6 +282,31 @@ export default function App() {
     setCitationModalOpen(true);
   };
 
+  // ROUTE 1: Dedicated Editorial Login Page
+  if (currentRoute === 'editorial-login') {
+    return (
+      <EditorialLoginPage
+        onLoginSuccess={handleLoginSuccess}
+        onNavigateHome={handleNavigateHome}
+      />
+    );
+  }
+
+  // ROUTE 2: Dedicated Editorial Dashboard
+  if (currentRoute === 'editorial-dashboard') {
+    return (
+      <EditorialDashboard
+        editorEmail={editorEmail}
+        onSignOut={handleSignOut}
+        onNavigateHome={handleNavigateHome}
+        onPreviewArticle={(art) => {
+          handleOpenDedicatedArticle(art);
+        }}
+      />
+    );
+  }
+
+  // ROUTE 3: Public Journal Website
   return (
     <div className="min-h-screen bg-[#FAF8F5] text-slate-900 font-sans flex flex-col selection:bg-amber-100 selection:text-amber-900">
       {/* 1. Institutional Top Bar & 2. Main Navigation */}
@@ -240,6 +354,9 @@ export default function App() {
               initialDiscipline={selectedDiscipline}
             />
 
+            {/* Author Submissions / Call for Papers */}
+            <SubmissionSection onOpenSubmitModal={() => setSubmissionModalOpen(true)} />
+
             {/* 10. Contact */}
             <ContactSection isStandalonePage={false} />
           </div>
@@ -247,7 +364,10 @@ export default function App() {
       </main>
 
       {/* 11. Institutional Footer */}
-      <Footer onSelectTab={handleSelectTab} />
+      <Footer
+        onSelectTab={handleSelectTab}
+        onOpenEditorialLogin={handleOpenEditorialLogin}
+      />
 
       {/* Interactive Modals */}
       <IssueReaderModal
